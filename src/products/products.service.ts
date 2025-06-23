@@ -12,8 +12,8 @@ export class ProductsService {
     ) {}
     
 
-    findAll() {
-        return this.productsRepository.find();
+    async findAll() {
+        return await this.productsRepository.find();
     }
 
     async createProduct(p) {
