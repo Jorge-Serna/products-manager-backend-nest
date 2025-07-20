@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProductsModule } from './products/products.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    ProductsModule,
+    
     ConfigModule.forRoot({isGlobal: true}),
     TypeOrmModule.forRootAsync({
       imports:[ConfigModule],
@@ -22,9 +23,9 @@ import { ProductsModule } from './products/products.module';
         synchronize: true, 
       }),
     }),
-    ProductsModule
+    AuthModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
