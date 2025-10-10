@@ -8,6 +8,9 @@ import { Repository, UpdateResult } from 'typeorm';
 @Injectable()
 export class ProductsService {
 
+    private MAX_STOCK: number = 1000;
+    private MIN_STOCK: number = 0;
+
     constructor(
         @InjectRepository(Product)
         private readonly productsRepository: Repository<Product>
@@ -36,11 +39,13 @@ export class ProductsService {
 
     async createProduct(p: ProductDto) {
 
+        // id is optional, so if you put it there and it does not exist already, it will be a new register
+        // but if you omit it then it will use autoincrease
         if(p.id) {
             const existsProduct = await this.findProduct(p.id);
 
             if(existsProduct) {
-                throw new ConflictException(`There is already an element using the id: ${p.id}`);
+                throw new ConflictException(`There is already an element using id: ${p.id}`);
             }
         }
 
@@ -48,16 +53,25 @@ export class ProductsService {
     }
     
     async updateProduct(p) {
+
+        console.log(p)
         return await this.productsRepository.save(p)
     }
 
     async deleteProductSoftly(id) {
 
-        /*  
+        /*  V1
             I can use updateProduct and change the value of deleted property, but I would have to send the whole object
-            and only change one property, by this method, that is going to be used, I only need the ID, then the object
+            and only change one property. By this method, that is going to be used, I only need the ID, then the object
             is mapped and the desired property is going to be updated only 
         */
+
+        /*  V2 9-10-25
+            I can reuse updateProduct function sending the next object, id is dynamic of course
+
+            return await this.updateProduct( {id: Number(id), deleted:true})
+        */
+
 
 
         const product = await this.findProduct(id)
@@ -69,6 +83,8 @@ export class ProductsService {
         if(product.deleted) {
             throw new ConflictException(`Product with ID ${id} has been deleted before`);
         }
+
+        
 
         // Not our update, but from TypeORM repository
         // it maps the product by the id (first arg), then applies second arg update, as long as the property exists
@@ -98,7 +114,83 @@ export class ProductsService {
 
     }
 
+    // el id del stock será igual al id del product
+    async updateStock(s) {
 
+        const product = await this.findProduct(s.id);
+
+        if(!product) {
+            throw new ConflictException(`Product ${s.id} does not exist`)
+        }
+
+        if(product.deleted) {
+            throw new ConflictException(`Sorry! this product was deleted`)
+        }
+
+        const rows:UpdateResult = await this.productsRepository.update( 
+            {id : s.id}, 
+            { stock: s.stock } 
+        );
+
+        return rows.affected == 1;
+
+    }
+
+    async increaseStock(s) {
+        const product = await this.findProduct(s.id);
+
+        if(!product) {
+            throw new ConflictException(`Product ${s.id} does not exist`)
+        }
+
+        if(product.deleted) {
+            throw new ConflictException(`Sorry! this product was deleted`)
+        }
+
+        var calculatedStock = 0;
+
+        if(s.stock + product.stock > this.MAX_STOCK) {
+            calculatedStock = this.MAX_STOCK;
+        } else {
+            calculatedStock = s.stock + product.stock;
+        }
+
+        const rows:UpdateResult = await this.productsRepository.update( 
+            {id : s.id}, 
+            { stock: calculatedStock } 
+        );
+
+        return rows.affected == 1;
+
+    }
+
+     async decreaseStock(s) {
+        const product = await this.findProduct(s.id);
+
+        if(!product) {
+            throw new ConflictException(`Product ${s.id} does not exist`)
+        }
+
+        if(product.deleted) {
+            throw new ConflictException(`Sorry! this product was deleted`)
+        }
+
+        var calculatedStock = 0;
+
+        if( product.stock - s.stock < this.MIN_STOCK) {
+            calculatedStock = this.MIN_STOCK;
+        } else {
+            calculatedStock = product.stock - s.stock;
+        }
+
+        const rows:UpdateResult = await this.productsRepository.update( 
+            {id : s.id}, 
+            { stock: calculatedStock } 
+        );
+
+        return rows.affected == 1;
+
+    }
 
 
     // findEncodedPass(salt, password) {

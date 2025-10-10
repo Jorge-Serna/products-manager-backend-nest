@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/
 import { ProductsService } from './products.service';
 import { Product } from 'src/entities/product.entity';
 import { ProductDto } from 'src/dtos/products-dto/product-dto';
+import { StockDto } from 'src/dtos/products-dto/stock-dto';
 
 @Controller('products')
 export class ProductsController {
@@ -15,6 +16,7 @@ export class ProductsController {
   }
 
   // Those that have a specific route go first, otherwise the app would think it is an argunment and take the next method
+  // the more specific route, the upper position it takes
   @Get('/deleted')
   findDeletedProducts() {
     return this.productsService.findDeletedProducts();
@@ -33,6 +35,7 @@ export class ProductsController {
 
   @Put()
   updateProduct(@Body() p:ProductDto){
+    console.log(p)
     return this.productsService.updateProduct(p);
   }
 
@@ -44,6 +47,21 @@ export class ProductsController {
   @Patch('/restore/:id')
   restoreProduct(@Param('id') id) {
     return this.productsService.restoreProduct(id);
+  }
+
+  @Patch('/stock')
+  updateStock(@Body() stock: StockDto) {
+    return this.productsService.updateStock(stock);
+  }
+
+  @Patch('/increase-stock')
+  increaseStock(@Body() stock: StockDto) {
+    return this.productsService.increaseStock(stock);
+  }
+
+  @Patch('/decrease-stock')
+  decreaseStock(@Body() stock: StockDto) {
+    return this.productsService.decreaseStock(stock);
   }
 
   
