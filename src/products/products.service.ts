@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from 'src/entities/product.entity';
-import { ProductDto } from 'src/dtos/products-dto/product-dto';
+import { ProductDto } from 'src/dtos/products-dtos/product-dto';
 import { Repository, UpdateResult } from 'typeorm';
 
 
@@ -15,13 +15,46 @@ export class ProductsService {
         @InjectRepository(Product)
         private readonly productsRepository: Repository<Product>
     ) {}
+
+
+
+
+
+    async findFilteredProducts( filters ){
+
+        const query = this.productsRepository.createQueryBuilder('product')
+        .innerJoin('product.category', 'category')
+        .select([
+            'product',
+            'category'
+        ])
+
+        if(filters.productId){
+            query.andWhere('product.id = :i', { i: filters.productId });
+        }
+
+        if(filters.nameProduct){
+            query.andWhere('product.productName LIKE :na', { na: `%${filters.nameProduct}%`});
+        }
+
+        if(filters.description){
+            query.andWhere('product.description LIKE :descr', { descr: `%${filters.description}%`});
+        }
+
+        if(filters.category){
+            query.andWhere('category.id = :cat', { cat: filters.category });
+        }
+
+        return await query.getMany();
+        
+
+    }
     
 
     async findAll() {
         return await this.productsRepository.find({
-
+            relations: ['category'],
             where: { deleted: false }
-
         });
     }
 
@@ -53,8 +86,6 @@ export class ProductsService {
     }
     
     async updateProduct(p) {
-
-        console.log(p)
         return await this.productsRepository.save(p)
     }
 

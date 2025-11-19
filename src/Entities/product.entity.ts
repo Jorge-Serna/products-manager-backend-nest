@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Category } from './category.entity';
 
 @Entity('products')
 export class Product {
@@ -26,4 +27,8 @@ export class Product {
 
   @Column({ type:'tinyint', nullable: true, default:false })                              
   deleted?: boolean;
+
+  @ManyToOne(() => Category, (cat) => cat.product, { onDelete: 'SET NULL', onUpdate: 'CASCADE' })
+  @JoinColumn({ name:"category_id" })
+  category!: Category;
 }

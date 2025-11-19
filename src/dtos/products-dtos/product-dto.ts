@@ -1,4 +1,5 @@
 import { IsBoolean, IsDate, IsEmpty, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
+import { Category } from "src/entities/category.entity";
 
 export class ProductDto {
 
@@ -13,6 +14,9 @@ export class ProductDto {
     @IsNumber()
     @IsPositive()
     id: number;
+
+    @IsNotEmpty()
+    category: Category;
 
     @IsNotEmpty()
     @IsString()

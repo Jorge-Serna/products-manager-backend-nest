@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Product } from 'src/entities/product.entity';
-import { ProductDto } from 'src/dtos/products-dto/product-dto';
-import { StockDto } from 'src/dtos/products-dto/stock-dto';
+import { ProductDto } from 'src/dtos/products-dtos/product-dto';
+import { StockDto } from 'src/dtos/products-dtos/stock-dto';
 
 @Controller('products')
 export class ProductsController {
@@ -11,8 +11,7 @@ export class ProductsController {
 
   @Post()
   createProduct(@Body() p:ProductDto) {
-    
-    return this.productsService.createProduct(p);
+    return this.productsService.createProduct( p );
   }
 
   // Those that have a specific route go first, otherwise the app would think it is an argunment and take the next method
@@ -29,39 +28,44 @@ export class ProductsController {
 
   @Get()
   findAllProducts() {
-    
     return this.productsService.findAll();
   }
 
   @Put()
   updateProduct(@Body() p:ProductDto){
-    console.log(p)
-    return this.productsService.updateProduct(p);
+    return this.productsService.updateProduct( p );
   }
 
   @Delete('/:id')
   deleteProduct(@Param('id') id) {
-    return this.productsService.deleteProductSoftly(id);
+    return this.productsService.deleteProductSoftly( id );
+  }
+
+  @Post('/filtered')
+  findFilteredProducts( @Body() p:any ) {
+
+    return this.productsService.findFilteredProducts( p );
+
   }
 
   @Patch('/restore/:id')
   restoreProduct(@Param('id') id) {
-    return this.productsService.restoreProduct(id);
+    return this.productsService.restoreProduct( id );
   }
 
   @Patch('/stock')
   updateStock(@Body() stock: StockDto) {
-    return this.productsService.updateStock(stock);
+    return this.productsService.updateStock( stock );
   }
 
   @Patch('/increase-stock')
   increaseStock(@Body() stock: StockDto) {
-    return this.productsService.increaseStock(stock);
+    return this.productsService.increaseStock( stock );
   }
 
   @Patch('/decrease-stock')
   decreaseStock(@Body() stock: StockDto) {
-    return this.productsService.decreaseStock(stock);
+    return this.productsService.decreaseStock( stock );
   }
 
   

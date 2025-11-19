@@ -3,11 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProductsModule } from './products/products.module';
 import { AuthModule } from './auth/auth.module';
+import { ClientsModule } from './clients/clients.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
     ProductsModule,
-    
     ConfigModule.forRoot({isGlobal: true}),
     TypeOrmModule.forRootAsync({
       imports:[ConfigModule],
@@ -24,6 +25,8 @@ import { AuthModule } from './auth/auth.module';
       }),
     }),
     AuthModule,
+    ClientsModule,
+    CategoriesModule,
   ],
   controllers: [],
   providers: [],
