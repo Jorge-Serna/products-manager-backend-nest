@@ -22,9 +22,9 @@ export class ProductDto {
     @IsString()
     productName: string
 
-    @IsNotEmpty()
-    @IsDate()
-    creationDate: Date;
+    // @IsNotEmpty()
+    // @IsDate()
+    // creationDate: Date;
 
     @IsNotEmpty()
     @IsString()
@@ -34,9 +34,9 @@ export class ProductDto {
     @IsNumber()
     price: number;
 
-    @IsNotEmpty()
-    @IsBoolean()
-    status!: boolean;
+    // @IsNotEmpty()
+    // @IsBoolean()
+    // status!: boolean;
 
     @IsNotEmpty()
     @IsNumber()

@@ -17,9 +17,6 @@ export class ProductsService {
     ) {}
 
 
-
-
-
     async findFilteredProducts( filters ){
 
         const query = this.productsRepository.createQueryBuilder('product')
@@ -29,27 +26,30 @@ export class ProductsService {
             'category'
         ])
 
-        if(filters.productId){
+        if( filters.productId ){
             query.andWhere('product.id = :i', { i: filters.productId });
         }
 
-        if(filters.nameProduct){
+        if( filters.nameProduct ){
             query.andWhere('product.productName LIKE :na', { na: `%${filters.nameProduct}%`});
         }
 
-        if(filters.description){
+        if( filters.description ){
             query.andWhere('product.description LIKE :descr', { descr: `%${filters.description}%`});
         }
 
-        if(filters.category){
+        if( filters.category ){
             query.andWhere('category.id = :cat', { cat: filters.category });
+        }
+
+        if( filters.count){
+            return await query.getManyAndCount();
         }
 
         return await query.getMany();
         
 
-    }
-    
+    } 
 
     async findAll() {
         return await this.productsRepository.find({
@@ -74,15 +74,18 @@ export class ProductsService {
 
         // id is optional, so if you put it there and it does not exist already, it will be a new register
         // but if you omit it then it will use autoincrease
-        if(p.id) {
+        if (p.id ) {
             const existsProduct = await this.findProduct(p.id);
 
-            if(existsProduct) {
+            if( existsProduct ) {
                 throw new ConflictException(`There is already an element using id: ${p.id}`);
             }
         }
 
-        return await this.productsRepository.save(p)
+        // is like creating - new Product() - from DTO
+        const product = this.productsRepository.create(p);
+
+        return await this.productsRepository.save(product)
     }
     
     async updateProduct(p) {

@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, BeforeInsert } from 'typeorm';
 import { Category } from './category.entity';
 
 @Entity('products')
@@ -10,8 +10,8 @@ export class Product {
   @Column({ name:'name',  type:'varchar', length:255, nullable: false })
   productName!: string;
 
-  @Column({ name:'creation_date', type:'date', nullable: false })
-  creationDate!: Date;
+  @Column({ name:'created_at', type:'datetime', nullable: false })
+  createdAt!: Date;
 
   @Column({ type:'varchar', length:255, nullable: false })
   description!: string;
@@ -22,13 +22,15 @@ export class Product {
   @Column({ type:'int', nullable: false })                              
   stock!: number;
 
-  @Column({ type:'tinyint', nullable: false, default:false })                              
-  status!: boolean;
-
-  @Column({ type:'tinyint', nullable: true, default:false })                              
+  @Column({ type:'tinyint', nullable: true, default:false })                       
   deleted?: boolean;
 
   @ManyToOne(() => Category, (cat) => cat.product, { onDelete: 'SET NULL', onUpdate: 'CASCADE' })
   @JoinColumn({ name:"category_id" })
   category!: Category;
+
+  @BeforeInsert()
+  setCreatedAt(){
+    this.createdAt = new Date();
+  }
 }

@@ -41,12 +41,12 @@ export class ProductsController {
     return this.productsService.deleteProductSoftly( id );
   }
 
+
   @Post('/filtered')
   findFilteredProducts( @Body() p:any ) {
-
     return this.productsService.findFilteredProducts( p );
-
   }
+  
 
   @Patch('/restore/:id')
   restoreProduct(@Param('id') id) {
