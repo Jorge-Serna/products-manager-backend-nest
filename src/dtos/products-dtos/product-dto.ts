@@ -5,26 +5,14 @@ export class ProductDto {
 
     // Para que funcionen los decoradores - validadores me instalé npm i class-validators
 
-    // TODO borrar todos los registros de la base de datos actual
-    // TODO hacer un insert o que se yo para modificar la tabla "products" le faltan campos
-    // checar formulario de angular
-    // TODO agregar al dto y al entity nuevos campos
-
     @IsOptional()
     @IsNumber()
     @IsPositive()
     id: number;
 
     @IsNotEmpty()
-    category: Category;
-
-    @IsNotEmpty()
     @IsString()
-    productName: string
-
-    // @IsNotEmpty()
-    // @IsDate()
-    // creationDate: Date;
+    productName: string;
 
     @IsNotEmpty()
     @IsString()
@@ -34,10 +22,6 @@ export class ProductDto {
     @IsNumber()
     price: number;
 
-    // @IsNotEmpty()
-    // @IsBoolean()
-    // status!: boolean;
-
     @IsNotEmpty()
     @IsNumber()
     stock!: number;
@@ -45,4 +29,9 @@ export class ProductDto {
     @IsOptional()
     @IsBoolean()
     deleted: boolean;
+
+    // datatype is not a number, but Category
+    @IsNotEmpty()
+    category: Category;
 }
+

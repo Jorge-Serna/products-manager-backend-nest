@@ -1,7 +1,6 @@
 import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
-import { Address } from "src/entities/address.entity";
 
-export class ClientDto {
+export class AddressDto {
 
     @IsOptional()
     @IsPositive()
@@ -10,14 +9,15 @@ export class ClientDto {
 
     @IsNotEmpty()
     @IsString()
-    name!: string;
+    country!: string;
 
     @IsNotEmpty()
-    @IsEmail()
-    email!: string;
+    @IsString()
+    town!: string;
 
     @IsNotEmpty()
-    address: Address;
+    @IsString()
+    street!: string
 
 
 }

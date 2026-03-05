@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
+import { Address } from './address.entity';
 
 @Entity('clients')
 export class Client {
@@ -6,24 +7,14 @@ export class Client {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @Column({ name:'name',  type:'varchar', length:255, nullable: false })
-  clientName!: string;
+  @Column({ type: 'varchar', length: 100, nullable: false })
+  name!: string;
 
-//   @Column({ name:'creation_date', type:'date', nullable: false })
-//   creationDate!: Date;
+  @Column({ type: 'varchar', length: 100, nullable: false, unique: true })
+  email!: string;
 
-//   @Column({ type:'varchar', length:255, nullable: false })
-//   description!: string;
+  @OneToOne( () => Address, { cascade: [ 'insert' ] } )
+  @JoinColumn()
+  address: Address;
 
-//   @Column({ type:'decimal', nullable: false })                              
-//   price!: number;
-
-//   @Column({ type:'int', nullable: false })                              
-//   stock!: number;
-
-//   @Column({ type:'tinyint', nullable: false, default:false })                              
-//   status!: boolean;
-
-//   @Column({ type:'tinyint', nullable: true, default:false })                              
-//   deleted?: boolean;
 }

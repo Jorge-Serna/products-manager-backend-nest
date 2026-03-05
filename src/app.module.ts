@@ -8,8 +8,9 @@ import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
-    ProductsModule,
+  
     ConfigModule.forRoot({isGlobal: true}),
+
     TypeOrmModule.forRootAsync({
       imports:[ConfigModule],
       inject:[ConfigService],
@@ -24,6 +25,8 @@ import { CategoriesModule } from './categories/categories.module';
         synchronize: true, 
       }),
     }),
+    
+    ProductsModule,
     AuthModule,
     ClientsModule,
     CategoriesModule,

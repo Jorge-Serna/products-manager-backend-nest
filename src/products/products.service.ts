@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from 'src/entities/product.entity';
 import { ProductDto } from 'src/dtos/products-dtos/product-dto';
 import { Repository, UpdateResult } from 'typeorm';
+import { StockDto } from 'src/dtos/products-dtos/stock-dto';
 
 
 @Injectable()
@@ -34,8 +35,13 @@ export class ProductsService {
             query.andWhere('product.productName LIKE :na', { na: `%${filters.nameProduct}%`});
         }
 
-        if( filters.description ){
-            query.andWhere('product.description LIKE :descr', { descr: `%${filters.description}%`});
+        if( filters.creationDate ){
+            const start = new Date(`${filters.creationDate}T00:00:00`);
+            const end = new Date(start);
+            end.setDate(end.getDate() + 1);
+
+            query.andWhere(`product.createdAt  >= :start`, { start });
+            query.andWhere(`product.createdAt < :end`, { end });
         }
 
         if( filters.category ){
@@ -142,14 +148,17 @@ export class ProductsService {
 
         // Not our update, but from TypeORM repository
         // it maps the product by the id (first arg), then applies second arg update, as long as the property exists
-        const rows:UpdateResult = await this.productsRepository.update( {id}, { deleted: false } );
+        const rows:UpdateResult = await this.productsRepository.update( 
+            { id }, 
+            { deleted: false } 
+        );
 
         return rows.affected == 1;
 
     }
 
     // el id del stock será igual al id del product
-    async updateStock(s) {
+    async updateStock(s: StockDto) {
 
         const product = await this.findProduct(s.id);
 
@@ -162,7 +171,7 @@ export class ProductsService {
         }
 
         const rows:UpdateResult = await this.productsRepository.update( 
-            {id : s.id}, 
+            { id : s.id }, 
             { stock: s.stock } 
         );
 
@@ -170,7 +179,7 @@ export class ProductsService {
 
     }
 
-    async increaseStock(s) {
+    async increaseStock(s: StockDto) {
         const product = await this.findProduct(s.id);
 
         if(!product) {
@@ -183,14 +192,14 @@ export class ProductsService {
 
         var calculatedStock = 0;
 
-        if(s.stock + product.stock > this.MAX_STOCK) {
+        if( s.stock + product.stock > this.MAX_STOCK ) {
             calculatedStock = this.MAX_STOCK;
         } else {
             calculatedStock = s.stock + product.stock;
         }
 
         const rows:UpdateResult = await this.productsRepository.update( 
-            {id : s.id}, 
+            { id : s.id }, 
             { stock: calculatedStock } 
         );
 
@@ -198,7 +207,7 @@ export class ProductsService {
 
     }
 
-     async decreaseStock(s) {
+     async decreaseStock(s: StockDto) {
         const product = await this.findProduct(s.id);
 
         if(!product) {
