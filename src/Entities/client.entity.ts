@@ -13,7 +13,7 @@ export class Client {
   @Column({ type: 'varchar', length: 100, nullable: false, unique: true })
   email!: string;
 
-  @OneToOne( () => Address, { cascade: [ 'insert' ] } )
+  @OneToOne( () => Address, { cascade: [ 'insert', 'update' ] } )
   @JoinColumn()
   address: Address;
 

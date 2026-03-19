@@ -106,24 +106,23 @@ export class ClientsService {
             }
         })
 
-        // when updating a client, I can send a client with an updated email address
-        // or I can send a client with the same email address
+        // when updating a client, this function can receive a client with an updated email address
+        // or an existing one
         // case 1: 
-        //          clientExists gets an email address if it exists, but if don't, app continues
-        // case 2: 
-        //          clientExists finds a register
+        //          clientExists does not find anything. That means that it is a brand new email address
+
+        // case 2: clientExists finds a register
         //          case 2.1:
-        //                  it is the same register because email was not changed
+        //                  it is the very same client, because email hasn't changed
         //          case 2.2:
-        //                  it is another email. In this case there must be an error because email must be unique
+        //                  it is another email. In this case another client has the same one, and there must be an error because email must be unique
         if( clientExists && clientExists.id != client.id ){
             throw new ConflictException(`There's already a client using this email`)
         }
 
-        
-        let addressExists: Address;
-        var deleted = false;
+        var deleteAddress = false;
         clientExists = await this.getClientById( client.id );
+        let addressExists: Address;
 
         if( client.address.id ){
 
@@ -133,19 +132,14 @@ export class ClientsService {
                 }
             })
 
-            /* I got 3 objects here, the one passed as parameter in the function "client", "clientExists", and "addressExists"
-                Now, Im gonna validate that this address.id (which is the same in "addressExists" & "client.address.id") is the same as the one stored in DB for this clientById */
+            /* I got 3 objects here, the one passed as parameter in the function "client", "clientExists" (which is gotten from db with client.id), and "addressExists" ( which is gotten from db with client.address.id) Now, Im gonna validate that this addresses ("addressExists" || "client.address.id") is the same as the one gotten by clienExists */
 
-            if( addressExists && addressExists.id != clientExists.address.id ) {
+            // compare IDS
+            if( addressExists && client.address.id != clientExists.address.id ) {
                 throw new ConflictException('This address already exists and its ID does not make match with the previous one stored');
 
-                // IDs match, but what is it with the rest of the data? lets validate it
-            } else if ( JSON.stringify(addressExists) != JSON.stringify(client.address) ) {
-                /*  why "addressExists" and "client.address" ??? addressExists and clientExists.address were gotten from db, they are the same, because they have the same ID
-                Well, at this point we know that client.address matches the id with the one stored in the DB for this register  so now, it is ovious that id is the same, then if the rest is different, lets validate that the rest does not exist for another client  
-                In case addressExists is false or null it comes here as well because it is different from client.address
-                */
-
+            // compare content
+            } else if ( JSON.stringify( addressExists ) != JSON.stringify( client.address ) ) {
 
                 addressExists = await this.addressRepository.findOne({
                     where: {
@@ -156,19 +150,21 @@ export class ClientsService {
                 })
 
 
+
                 if( addressExists ){
                     throw new ConflictException('This address already exists')
                 } else {
-                    deleted = true;
+                    // in case it has an ID but it is a new one with new content delete the previous one
+                    deleteAddress = true;
                 }
 
-            }
+            } // if id remains the same and content too, it just skips these 2 conditions
 
         } else {
 
             // when we use save(), app creates 2 registers, a client and an address
             // in case it has an address with same data, it should display error because sddresses must be unique
-            // otherwise if there is a different address, it should create a new register, so the one left must be deleted
+            // otherwise if there is a different address, it should create a new register, and the one left must be deleted
 
             addressExists = await this.addressRepository.findOne({
                 where: {
@@ -181,14 +177,38 @@ export class ClientsService {
             if( addressExists ){
                 throw new ConflictException('This address already exists')
             } else {
-                // it is valid here, and addresse will be updated
-                // address not associated with any client must be deleted
-                deleted = true;
+                // address without ID is not associated with any client, it must be deleted
+                deleteAddress = true;
             }
 
         }
 
-        return this.addressRepository.save( client );
+        const newClient = await this.clientRepository.save( client );
 
+        if( deleteAddress && newClient ){
+            await this.addressRepository.delete( { id : clientExists.address.id } );
+        }
+
+        return newClient;
+
+    }
+
+    async deleteClient( id ){
+
+        const clientExists = await this.getClientById( id );
+
+        if( !clientExists ) {
+            throw new ConflictException('this client does not exist');
+        }
+
+        const row = await this.clientRepository.delete({ id })
+
+        if( row.affected == 1 ){
+            // delete address now
+            await this.addressRepository.delete({ id: clientExists.address.id });
+            return true;
+        }
+
+        return false;
     }
 }
