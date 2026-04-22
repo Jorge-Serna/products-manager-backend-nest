@@ -95,7 +95,6 @@ export class ClientsService {
 
     async updateClient( client: ClientDto ){
 
-        // if this is the case, function ends here
         if(!client.id){
             return this.createClient( client );
         }
@@ -107,7 +106,7 @@ export class ClientsService {
         })
 
         // when updating a client, this function can receive a client with an updated email address
-        // or an existing one
+        // or one email that already exists in another client. Or the same one, since it wasn't updated
         // case 1: 
         //          clientExists does not find anything. That means that it is a brand new email address
 
@@ -132,7 +131,9 @@ export class ClientsService {
                 }
             })
 
-            /* I got 3 objects here, the one passed as parameter in the function "client", "clientExists" (which is gotten from db with client.id), and "addressExists" ( which is gotten from db with client.address.id) Now, Im gonna validate that this addresses ("addressExists" || "client.address.id") is the same as the one gotten by clienExists */
+            /* I got 3 objects here, the one passed as parameter in the function "client", "clientExists" (which is gotten from db with client.id), 
+            and "addressExists" ( which is gotten from db with client.address.id) 
+            Now, Im gonna validate that this addresses ("addressExists" || "client.address.id") is the same as the one gotten by clienExists */
 
             // compare IDS
             if( addressExists && client.address.id != clientExists.address.id ) {

@@ -1,4 +1,6 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Client } from "./client.entity";
+import { Product } from "./product.entity";
 
 @Entity('orders')
 export class Order {
@@ -14,5 +16,12 @@ export class Order {
 
     @Column({ type: Date,  nullable: true })
     confirmAt: Date;
+
+    @ManyToOne(() => Client, c => c.orders, { eager: true } )
+    client: Client;
+
+    @ManyToMany(() => Product, { eager: true } )
+    @JoinTable( {name: 'orders_products'} )
+    products: Product[];
 
 }

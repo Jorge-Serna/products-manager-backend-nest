@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Address } from './address.entity';
+import { Order } from './order.entity';
 
 @Entity('clients')
 export class Client {
@@ -16,5 +17,8 @@ export class Client {
   @OneToOne( () => Address, { cascade: [ 'insert', 'update' ] } )
   @JoinColumn()
   address: Address;
+
+  @OneToMany( () => Order, o => o.client )
+  orders: Order[];
 
 }
